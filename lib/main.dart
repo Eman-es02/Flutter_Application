@@ -73,27 +73,12 @@ class _MyHomePageState extends State<MyHomePage> {
         page = HomePage(isDateFormatChanged: appState.isDateFormatChanged);
         break;
       case 1:
-        page = Container(
-          padding: EdgeInsets.all(8.0),
-          child: Column(
-            children: [
-              SearchBar(),
-              Expanded(
-                child: RecordList(
-                  isDateFormatChanged: appState.isDateFormatChanged,
-                ),
-              ),
-            ],
-          ),
-        );
-        break;
-      case 2:
         Future.delayed(Duration.zero, () {
           appState.toggleDateFormat();
         });
         page = HomePage(isDateFormatChanged: appState.isDateFormatChanged);
         break;
-      case 3:
+      case 2:
         page = Placeholder();
         break;
       default:
@@ -110,10 +95,6 @@ class _MyHomePageState extends State<MyHomePage> {
                 NavigationRailDestination( //1
                   icon: Icon(Icons.home),
                   label: Text('Home'),
-                ),
-                NavigationRailDestination( //2
-                  icon: Icon(Icons.search),
-                  label: Text('Search'),
                 ),
                 NavigationRailDestination( //3
                   icon: Icon(Icons.date_range),
