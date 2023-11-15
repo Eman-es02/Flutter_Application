@@ -207,10 +207,13 @@ class RecordList extends StatelessWidget {
   Widget build(BuildContext context) {
     final appState = Provider.of<MyAppState>(context, listen: true);
 
-    List<AttendanceRecord> filteredRecords = attendanceRecords
-        .where((record) =>
-            record.user.toLowerCase().contains(appState.searchKeyword.toLowerCase()))
-        .toList();
+    
+    List<AttendanceRecord> filteredRecords = appState.searchKeyword.isEmpty
+        ? attendanceRecords
+        : attendanceRecords
+            .where((record) =>
+                record.user.toLowerCase().contains(appState.searchKeyword.toLowerCase()))
+            .toList();
 
     return ListView.builder(
       itemCount: filteredRecords.length,
