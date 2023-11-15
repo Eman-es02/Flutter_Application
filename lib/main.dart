@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:timeago/timeago.dart' as timeago;
+
 
 void main() {
   runApp(const MyApp());
@@ -20,13 +22,20 @@ class MyApp extends StatelessWidget {
         ),
         home: MyHomePage(),
       ),
-      
+
     );
   }
 }
 
 
 class MyAppState extends ChangeNotifier {
+
+  bool isDateFormatChanged = false;
+
+  void toggleDateFormat() {
+    isDateFormatChanged = !isDateFormatChanged;
+    notifyListeners();
+  }
 
 }
 
@@ -46,16 +55,16 @@ class _MyHomePageState extends State<MyHomePage> {
     Widget page;
     switch (selectedIndex) {
       case 0:
-        page = const Placeholder();
+        page = HomePage();
         break;
       case 1:
-        page = const Placeholder();
+        page = Placeholder();
         break;
       case 2:
-        page = const Placeholder();
+        page = Placeholder();
         break;
       case 3:
-        page = const Placeholder();
+        page = Placeholder();
         break;
       default:
         throw UnimplementedError('no widget for $selectedIndex');
@@ -104,3 +113,58 @@ class _MyHomePageState extends State<MyHomePage> {
     );
   }
 }
+
+class HomePage extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return ListView.builder(
+      itemCount: attendanceRecords.length,
+      itemBuilder: (context, index) {
+        return Card(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(10.0),
+          ),
+          child: ListTile(
+            title: Text(attendanceRecords[index].user),
+            subtitle: Text('Phone: ${attendanceRecords[index].phone}\nCheck-in: ${attendanceRecords[index].checkIn}'),
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => DetailScreen(record: attendanceRecords[index]),
+                ),
+              );
+            },
+          ),
+        );
+      },
+    );
+  }
+}
+
+class DetailScreen extends StatelessWidget {
+  final AttendanceRecord record;
+  const DetailScreen({required this.record, Key? key}) : super(key: key);
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text(record.user),
+      ),
+      body: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Text('Phone: ${record.phone}\nCheck-in: ${record.checkIn}'),
+      ),
+    );
+  }
+}
+
+class AttendanceRecord {
+  final String user;
+  final String phone;
+  final DateTime checkIn;
+  AttendanceRecord(this.user, this.phone, this.checkIn);
+}
+List<AttendanceRecord> attendanceRecords = [
+  AttendanceRecord('Chan Saw Lin', '0152131113', DateTime.parse('2020-06-30 16:10:05')),
+  AttendanceRecord('Lee Saw Loy', '0161231346', DateTime.parse('2020-07-11 15:39:59')),];
