@@ -5,7 +5,14 @@ import 'package:timeago/timeago.dart' as timeago;
 
 
 void main() {
-  runApp(const MyApp());
+  runApp(
+    MultiProvider(
+      providers: [
+        ChangeNotifierProvider(create: (_) => MyAppState()),
+      ],
+      child: const MyApp(),
+    ),
+  );
 }
 
 class MyApp extends StatelessWidget {
@@ -32,9 +39,15 @@ class MyApp extends StatelessWidget {
 class MyAppState extends ChangeNotifier {
 
   bool isDateFormatChanged = false;
+  String searchKeyword = '';
 
   void toggleDateFormat() {
     isDateFormatChanged = !isDateFormatChanged;
+    notifyListeners();
+  }
+
+   void setSearchKeyword(String keyword) {
+    searchKeyword = keyword;
     notifyListeners();
   }
 
@@ -60,7 +73,19 @@ class _MyHomePageState extends State<MyHomePage> {
         page = HomePage(isDateFormatChanged: appState.isDateFormatChanged);
         break;
       case 1:
-        page = Placeholder();
+        page = Container(
+          padding: EdgeInsets.all(8.0),
+          child: Column(
+            children: [
+              SearchBar(),
+              Expanded(
+                child: RecordList(
+                  isDateFormatChanged: appState.isDateFormatChanged,
+                ),
+              ),
+            ],
+          ),
+        );
         break;
       case 2:
         Future.delayed(Duration.zero, () {
@@ -74,7 +99,7 @@ class _MyHomePageState extends State<MyHomePage> {
       default:
         throw UnimplementedError('no widget for $selectedIndex');
 }
-        return Scaffold(
+    return Scaffold(
       body: Row(
         children: [
           SafeArea( //first child 
@@ -127,10 +152,70 @@ class HomePage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    return Column(
+      children: [
+        SearchBar(),
+        Expanded(
+          child: RecordList(isDateFormatChanged: isDateFormatChanged),
+        ),
+      ],
+    );
+  }
+}
+
+class SearchBar extends StatefulWidget {
+  @override
+  _SearchBarState createState() => _SearchBarState();
+}
+
+class _SearchBarState extends State<SearchBar> {
+  late TextEditingController _searchController;
+
+  @override
+  void initState() {
+    super.initState();
+    _searchController = TextEditingController();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final appState = Provider.of<MyAppState>(context, listen: false);
+
+    return Padding(
+      padding: const EdgeInsets.all(8.0),
+      child: TextField(
+        controller: _searchController,
+        onChanged: (value) {
+          appState.setSearchKeyword(value);
+        },
+        decoration: InputDecoration(
+          labelText: 'Search',
+          prefixIcon: Icon(Icons.search),
+          border: OutlineInputBorder(),
+        ),
+      ),
+    );
+  }
+}
+
+class RecordList extends StatelessWidget {
+  final bool isDateFormatChanged;
+
+  RecordList({required this.isDateFormatChanged});
+
+  @override
+  Widget build(BuildContext context) {
+    final appState = Provider.of<MyAppState>(context, listen: true);
+
+    List<AttendanceRecord> filteredRecords = attendanceRecords
+        .where((record) =>
+            record.user.toLowerCase().contains(appState.searchKeyword.toLowerCase()))
+        .toList();
+
     return ListView.builder(
-      itemCount: attendanceRecords.length,
+      itemCount: filteredRecords.length,
       itemBuilder: (context, index) {
-        final record = attendanceRecords[index];
+        final record = filteredRecords[index];
         final checkIn = isDateFormatChanged
             ? DateFormat('dd MMM yyyy, h:mm a').format(record.checkIn)
             : timeago.format(record.checkIn);
@@ -155,6 +240,7 @@ class HomePage extends StatelessWidget {
     );
   }
 }
+
 
 class DetailScreen extends StatelessWidget {
   final AttendanceRecord record;
