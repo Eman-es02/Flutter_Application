@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:intl/intl.dart';
 import 'package:timeago/timeago.dart' as timeago;
 
 
@@ -52,16 +53,20 @@ class _MyHomePageState extends State<MyHomePage> {
 
   @override
   Widget build(BuildContext context) {
+    final appState = Provider.of<MyAppState>(context, listen: false);
     Widget page;
     switch (selectedIndex) {
       case 0:
-        page = HomePage();
+        page = HomePage(isDateFormatChanged: appState.isDateFormatChanged);
         break;
       case 1:
         page = Placeholder();
         break;
       case 2:
-        page = Placeholder();
+        Future.delayed(Duration.zero, () {
+          appState.toggleDateFormat();
+        });
+        page = HomePage(isDateFormatChanged: appState.isDateFormatChanged);
         break;
       case 3:
         page = Placeholder();
@@ -74,6 +79,7 @@ class _MyHomePageState extends State<MyHomePage> {
         children: [
           SafeArea( //first child 
             child: NavigationRail(
+              labelType: NavigationRailLabelType.selected,
               extended: false,
               destinations: const [
                 NavigationRailDestination( //1
@@ -115,23 +121,31 @@ class _MyHomePageState extends State<MyHomePage> {
 }
 
 class HomePage extends StatelessWidget {
+  final bool isDateFormatChanged;
+
+  HomePage({required this.isDateFormatChanged});
+
   @override
   Widget build(BuildContext context) {
     return ListView.builder(
       itemCount: attendanceRecords.length,
       itemBuilder: (context, index) {
+        final record = attendanceRecords[index];
+        final checkIn = isDateFormatChanged
+            ? DateFormat('dd MMM yyyy, h:mm a').format(record.checkIn)
+            : timeago.format(record.checkIn);
         return Card(
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(10.0),
           ),
           child: ListTile(
-            title: Text(attendanceRecords[index].user),
-            subtitle: Text('Phone: ${attendanceRecords[index].phone}\nCheck-in: ${attendanceRecords[index].checkIn}'),
+            title: Text(record.user),
+            subtitle: Text('Phone: ${record.phone}\nCheck-in: $checkIn'),
             onTap: () {
               Navigator.push(
                 context,
                 MaterialPageRoute(
-                  builder: (context) => DetailScreen(record: attendanceRecords[index]),
+                  builder: (context) => DetailScreen(record: record),
                 ),
               );
             },
@@ -159,6 +173,9 @@ class DetailScreen extends StatelessWidget {
   }
 }
 
+
+
+
 class AttendanceRecord {
   final String user;
   final String phone;
@@ -167,4 +184,13 @@ class AttendanceRecord {
 }
 List<AttendanceRecord> attendanceRecords = [
   AttendanceRecord('Chan Saw Lin', '0152131113', DateTime.parse('2020-06-30 16:10:05')),
-  AttendanceRecord('Lee Saw Loy', '0161231346', DateTime.parse('2020-07-11 15:39:59')),];
+  AttendanceRecord('Lee Saw Loy', '0161231346', DateTime.parse('2020-07-11 15:39:59')),
+  AttendanceRecord('Khaw Tong Lin', '0158398109', DateTime.parse('2020-08-19 11:10:18')),
+  AttendanceRecord('Lim Kok Lin', '0168279101', DateTime.parse('2020-08-19 11:11:35')),
+  AttendanceRecord('Low Jun Wei', '0112731912', DateTime.parse('2020-08-15 13:00:05')),
+  AttendanceRecord('Yong Weng Kai', '0172332743', DateTime.parse('2020-07-31 18:10:11')),
+  AttendanceRecord('Jayden Lee', '0191236439', DateTime.parse('2020-08-22 08:10:38')),
+  AttendanceRecord('Kong Kah Yan', '0111931233', DateTime.parse('2020-07-11 12:00:00')),
+  AttendanceRecord('Jasmine Lau', '0162879190', DateTime.parse('2020-08-01 12:10:05')),
+  AttendanceRecord('Chan Saw Lin', '016783239', DateTime.parse('2020-08-23 11:59:05')),
+];
