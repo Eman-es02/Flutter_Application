@@ -73,17 +73,12 @@ class _MyHomePageState extends State<MyHomePage> {
         page = HomePage(isDateFormatChanged: appState.isDateFormatChanged);
         break;
       case 1:
-        Future.delayed(Duration.zero, () {
-          appState.toggleDateFormat();
-        });
-        page = HomePage(isDateFormatChanged: appState.isDateFormatChanged);
-        break;
-      case 2:
         page = Placeholder();
         break;
       default:
         throw UnimplementedError('no widget for $selectedIndex');
 }
+
     return Scaffold(
       body: Row(
         children: [
@@ -91,16 +86,14 @@ class _MyHomePageState extends State<MyHomePage> {
             child: NavigationRail(
               labelType: NavigationRailLabelType.selected,
               extended: false,
+
               destinations: const [
                 NavigationRailDestination( //1
                   icon: Icon(Icons.home),
                   label: Text('Home'),
                 ),
-                NavigationRailDestination( //3
-                  icon: Icon(Icons.date_range),
-                  label: Text('Change Date Format'),
-                ),
-                NavigationRailDestination( //4
+                
+                NavigationRailDestination( //2
                   icon: Icon(Icons.add),
                   label: Text('Add Record'),
                 ),
@@ -110,8 +103,21 @@ class _MyHomePageState extends State<MyHomePage> {
                 setState(() {
                   selectedIndex = value;
                 });
-                
               },
+              leading: Column (
+                children: [
+                 const SizedBox(height: 8.0,),
+                 Switch(
+                  value: appState.isDateFormatChanged,
+                  onChanged: (value) {
+                    setState(() {
+                      appState.toggleDateFormat();
+                    });
+                  },
+                  activeTrackColor: Color.fromARGB(255, 247, 202, 255),
+                  activeColor:  Color.fromARGB(255, 153, 0, 180),
+                 ), 
+                ]),
             ),
           ),
           Expanded( // second child
