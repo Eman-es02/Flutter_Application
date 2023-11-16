@@ -1,3 +1,5 @@
+import 'dart:convert';
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:provider/provider.dart';
@@ -198,6 +200,8 @@ class RecordList extends StatefulWidget {
 class _RecordListState extends State<RecordList> {
   final ScrollController _scrollController = ScrollController();
   bool showEndOfListMessage = false;
+  final JsonFileManager jsonFileManager = JsonFileManager('assets/Attendance_Dataset.json');
+
 
   @override
   void initState() {
@@ -240,13 +244,19 @@ class _RecordListState extends State<RecordList> {
   @override
   Widget build(BuildContext context) {
     final appState = Provider.of<MyAppState>(context, listen: true);
+    final List<Map<String, dynamic>> jsonRecords = jsonFileManager.loadJsonData();
 
     List<AttendanceRecord> filteredRecords = appState.searchKeyword.isEmpty
-        ? attendanceRecords
-        : attendanceRecords
-            .where((record) =>
-                record.user.toLowerCase().contains(appState.searchKeyword.toLowerCase()) ||
-                record.phone.contains(appState.searchKeyword))
+        ? jsonRecords.map((jsonRecord) {
+            return AttendanceRecord.fromJson(jsonRecord);
+          }).toList()
+        : jsonRecords
+            .where((jsonRecord) =>
+                jsonRecord['user'].toLowerCase().contains(appState.searchKeyword.toLowerCase()) ||
+                jsonRecord['phone'].contains(appState.searchKeyword))
+            .map((jsonRecord) {
+            return AttendanceRecord.fromJson(jsonRecord);
+          })
             .toList();
 
     return ListView.builder(
@@ -283,6 +293,7 @@ class _RecordListState extends State<RecordList> {
 
 
 
+
 class DetailScreen extends StatelessWidget {
   final AttendanceRecord record;
   const DetailScreen({required this.record, Key? key}) : super(key: key);
@@ -300,7 +311,45 @@ class DetailScreen extends StatelessWidget {
   }
 }
 
+class JsonFileManager {
+  final String filePath;
+
+  JsonFileManager(this.filePath);
+
+  List<Map<String, dynamic>> loadJsonData() {
+    try {
+      final file = File(filePath);
+      if (file.existsSync()) {
+        final jsonData = json.decode(file.readAsStringSync());
+        if (jsonData is List) {
+          return List<Map<String, dynamic>>.from(jsonData);
+        }
+      }
+    } catch (e) {
+      print("Error loading JSON data: $e");
+    }
+    return [];
+  }
+
+  void saveToJson(List<Map<String, dynamic>> data) {
+    try {
+      final file = File(filePath);
+      file.writeAsStringSync(json.encode(data));
+    } catch (e) {
+      print("Error saving JSON data: $e");
+    }
+  }
+
+  void addRecord(Map<String, dynamic> record) {
+    final List<Map<String, dynamic>> existingData = loadJsonData();
+    existingData.add(record);
+    saveToJson(existingData);
+  }
+}
+
+
 class AddRecordScreen extends StatelessWidget {
+  final JsonFileManager jsonFileManager = JsonFileManager('assets/Attendance_Dataset.json');
   final _formKey = GlobalKey<FormState>();
   final _userController = TextEditingController();
   final _phoneController = TextEditingController();
@@ -340,24 +389,30 @@ class AddRecordScreen extends StatelessWidget {
               child: InkWell(
                 onTap: () async {
                   if (_formKey.currentState!.validate()) {
-                    attendanceRecords.add(AttendanceRecord(
+                    final newRecord = AttendanceRecord(
                       _userController.text,
                       _phoneController.text,
                       DateTime.now(),
-                    ));
+                    );
+
+                    // Add record to JSON file
+                    jsonFileManager.addRecord({
+                      'user': newRecord.user,
+                      'phone': newRecord.phone,
+                      'checkIn': newRecord.checkIn.toIso8601String(),
+                    });
 
                     // Show a SnackBar
                     ScaffoldMessenger.of(context).showSnackBar(
                       SnackBar(
                         content: Text('Record added successfully'),
-                        duration: Duration(seconds: 2),
+                        duration: Duration(seconds: 1),
                       ),
                     );
                     await Future.delayed(Duration(seconds: 2));
 
                     // Navigate back to the home page
                     Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) => MyHomePage()));
-;
                   }
                 },
                 child: Container(
@@ -382,13 +437,37 @@ class AddRecordScreen extends StatelessWidget {
 
 
 
+
+
+
 class AttendanceRecord {
   final String user;
   final String phone;
   final DateTime checkIn;
   AttendanceRecord(this.user, this.phone, this.checkIn);
+
+    // Factory constructor to convert a Map<String, dynamic> to an AttendanceRecord instance
+  factory AttendanceRecord.fromJson(Map<String, dynamic> json) {
+  return AttendanceRecord(
+    json['user'] as String,
+    json['phone'] as String,
+    json['checkIn'] != null
+        ? DateTime.parse(json['checkIn'] as String)
+        : DateTime.now(), // Provide a default value or handle it accordingly
+  );
 }
-List<AttendanceRecord> attendanceRecords = [
+
+  // Method to convert the AttendanceRecord instance to a Map<String, dynamic>
+    Map<String, dynamic> toJson() {
+    return {
+      'user': user,
+      'phone': phone,
+      'checkIn': checkIn.toIso8601String(),
+    };
+  }
+}
+
+/*List<AttendanceRecord> attendanceRecords = [
   AttendanceRecord('Chan Saw Lin', '0152131113', DateTime.parse('2020-06-30 16:10:05')),
   AttendanceRecord('Lee Saw Loy', '0161231346', DateTime.parse('2020-07-11 15:39:59')),
   AttendanceRecord('Khaw Tong Lin', '0158398109', DateTime.parse('2020-08-19 11:10:18')),
@@ -399,4 +478,4 @@ List<AttendanceRecord> attendanceRecords = [
   AttendanceRecord('Kong Kah Yan', '0111931233', DateTime.parse('2020-07-11 12:00:00')),
   AttendanceRecord('Jasmine Lau', '0162879190', DateTime.parse('2020-08-01 12:10:05')),
   AttendanceRecord('Chan Saw Lin', '016783239', DateTime.parse('2020-08-23 11:59:05')),
-];
+];*/
