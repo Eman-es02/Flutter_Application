@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 import 'package:provider/provider.dart';
 import 'package:intl/intl.dart';
 import 'package:timeago/timeago.dart' as timeago;
@@ -52,7 +53,6 @@ class MyAppState extends ChangeNotifier {
   }
 
 }
-
 
 
 class MyHomePage extends StatefulWidget {
@@ -185,10 +185,57 @@ class _SearchBarState extends State<SearchBar> {
   }
 }
 
-class RecordList extends StatelessWidget {
+
+class RecordList extends StatefulWidget {
   final bool isDateFormatChanged;
 
   RecordList({required this.isDateFormatChanged});
+
+  @override
+  _RecordListState createState() => _RecordListState();
+}
+
+class _RecordListState extends State<RecordList> {
+  final ScrollController _scrollController = ScrollController();
+  bool showEndOfListMessage = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _scrollController.addListener(_scrollListener);
+  }
+
+  @override
+  void dispose() {
+    _scrollController.removeListener(_scrollListener);
+    _scrollController.dispose();
+    super.dispose();
+  }
+
+  void _scrollListener() {
+    if (_scrollController.position.userScrollDirection == ScrollDirection.reverse) {
+      // Scrolling down
+      if (showEndOfListMessage) {
+        setState(() {
+          showEndOfListMessage = false;
+        });
+      }
+    }
+
+    if (!showEndOfListMessage &&
+        _scrollController.position.pixels == _scrollController.position.maxScrollExtent) {
+      // Scrolling up
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('You have reached the end of the list'),
+          duration: Duration(seconds: 1),
+        ),
+      );
+      setState(() {
+        showEndOfListMessage = true;
+      });
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -203,10 +250,11 @@ class RecordList extends StatelessWidget {
             .toList();
 
     return ListView.builder(
+      controller: _scrollController,
       itemCount: filteredRecords.length,
       itemBuilder: (context, index) {
         final record = filteredRecords[index];
-        final checkIn = isDateFormatChanged
+        final checkIn = widget.isDateFormatChanged
             ? DateFormat('dd MMM yyyy, h:mm a').format(record.checkIn)
             : timeago.format(record.checkIn);
         return Card(
@@ -230,6 +278,9 @@ class RecordList extends StatelessWidget {
     );
   }
 }
+
+
+
 
 
 class DetailScreen extends StatelessWidget {
@@ -328,7 +379,6 @@ class AddRecordScreen extends StatelessWidget {
     );
   }
 }
-
 
 
 
