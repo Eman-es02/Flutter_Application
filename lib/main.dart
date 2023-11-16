@@ -139,15 +139,13 @@ class HomePage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Center(
-      child: Column(
-        children: [
-          SearchBar(),
-          Expanded(
-            child: RecordList(isDateFormatChanged: isDateFormatChanged),
-          ),
-        ],
-      ),
+    return Column(
+      children: [
+        SearchBar(),
+        Expanded(
+          child: RecordList(isDateFormatChanged: isDateFormatChanged),
+        ),
+      ],
     );
   }
 }
