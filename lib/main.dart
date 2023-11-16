@@ -73,7 +73,7 @@ class _MyHomePageState extends State<MyHomePage> {
         page = HomePage(isDateFormatChanged: appState.isDateFormatChanged);
         break;
       case 1:
-        page = Placeholder();
+        page = AddRecordScreen();
         break;
       default:
         throw UnimplementedError('no widget for $selectedIndex');
@@ -244,6 +244,86 @@ class DetailScreen extends StatelessWidget {
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Text('Phone: ${record.phone}\nCheck-in: ${record.checkIn}'),
+      ),
+    );
+  }
+}
+
+class AddRecordScreen extends StatelessWidget {
+  final _formKey = GlobalKey<FormState>();
+  final _userController = TextEditingController();
+  final _phoneController = TextEditingController();
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text("Add Record"),
+      ),
+      body: Form(
+        key: _formKey,
+        child: Column(
+          children: <Widget>[
+            TextFormField(
+              controller: _userController,
+              decoration: InputDecoration(labelText: 'User'),
+              validator: (value) {
+                if (value == null || value.isEmpty) {
+                  return 'Please enter a user';
+                }
+                return null;
+              },
+            ),
+            TextFormField(
+              controller: _phoneController,
+              decoration: InputDecoration(labelText: 'Phone'),
+              validator: (value) {
+                if (value == null || value.isEmpty) {
+                  return 'Please enter a phone number';
+                }
+                return null;
+              },
+            ),
+            Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: InkWell(
+                onTap: () async {
+                  if (_formKey.currentState!.validate()) {
+                    attendanceRecords.add(AttendanceRecord(
+                      _userController.text,
+                      _phoneController.text,
+                      DateTime.now(),
+                    ));
+
+                    // Show a SnackBar
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: Text('Record added successfully'),
+                        duration: Duration(seconds: 2),
+                      ),
+                    );
+                    await Future.delayed(Duration(seconds: 2));
+
+                    // Navigate back to the home page
+                    Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) => MyHomePage()));
+;
+                  }
+                },
+                child: Container(
+                  padding: EdgeInsets.symmetric(vertical: 12, horizontal: 24),
+                  decoration: BoxDecoration(
+                    color: Theme.of(context).primaryColor,
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: Text(
+                    'Submit',
+                    style: TextStyle(color: Colors.white),
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
