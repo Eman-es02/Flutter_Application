@@ -258,6 +258,9 @@ class _RecordListState extends State<RecordList> {
             return AttendanceRecord.fromJson(jsonRecord);
           })
             .toList();
+            
+    // Sort the filteredRecords based on check-in date
+    filteredRecords.sort(AttendanceRecord.compareByCheckIn);
 
     return ListView.builder(
       controller: _scrollController,
@@ -479,6 +482,11 @@ class AttendanceRecord {
       'checkIn': checkIn.toIso8601String(),
     };
   }
+
+  // Compare records based on the check-in date for sorting
+  static int compareByCheckIn(AttendanceRecord a, AttendanceRecord b) {
+    return b.checkIn.compareTo(a.checkIn);
+}
 }
 
 /*List<AttendanceRecord> attendanceRecords = [
