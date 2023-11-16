@@ -448,12 +448,26 @@ class AttendanceRecord {
 
     // Factory constructor to convert a Map<String, dynamic> to an AttendanceRecord instance
   factory AttendanceRecord.fromJson(Map<String, dynamic> json) {
+  final checkInString = json['check-in'] as String?;
+  DateTime parsedCheckIn;
+
+  if (checkInString != null) {
+    try {
+      parsedCheckIn = DateTime.parse(checkInString);
+    } catch (e) {
+      print("Error parsing 'check-in' value: $checkInString");
+      parsedCheckIn = DateTime.now();
+    }
+  } else {
+    parsedCheckIn = DateTime.now();
+  }
+
+  print("Parsed 'check-in' value: $parsedCheckIn");
+
   return AttendanceRecord(
     json['user'] as String,
     json['phone'] as String,
-    json['checkIn'] != null
-        ? DateTime.parse(json['checkIn'] as String)
-        : DateTime.now(), // Provide a default value or handle it accordingly
+    parsedCheckIn,
   );
 }
 
