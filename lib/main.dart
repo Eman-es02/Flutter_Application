@@ -5,6 +5,7 @@ import 'package:flutter/rendering.dart';
 import 'package:provider/provider.dart';
 import 'package:intl/intl.dart';
 import 'package:timeago/timeago.dart' as timeago;
+import 'dart:async';
 
 
 void main() {
@@ -17,26 +18,6 @@ void main() {
     ),
   );
 }
-
-/*class MyApp extends StatelessWidget {
-  const MyApp({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return ChangeNotifierProvider(
-      create: (context) => MyAppState(),
-      child: MaterialApp(
-        title: 'Attendance',
-        theme: ThemeData(
-          useMaterial3: true,
-          colorScheme: ColorScheme.fromSeed(seedColor: Colors.purple),
-        ),
-        home: MyHomePage(),
-      ),
-
-    );
-  }
-}*/
 
 class MyApp extends StatelessWidget {
   const MyApp({Key? key}) : super(key: key);
@@ -53,11 +34,39 @@ class MyApp extends StatelessWidget {
           useMaterial3: true,
           colorScheme: ColorScheme.fromSeed(seedColor: Colors.purple),
         ),
-        home: OnBoardingScreen(), // Start with the onboarding screen
+        home: const OnBoardingScreen(), // Start with the onboarding screen
       ),
     );
   }
 }
+
+class OnBoard {
+  final String image1, image2, description;
+
+  OnBoard({
+    required this.image1,
+    required this.image2,
+    required this.description,
+  });
+}
+
+final List<OnBoard> onBoardingData = [
+  OnBoard(
+    image1: "assets/img1.png",
+    image2: "assets/img2.png",
+    description: "Welcome to our app!\n\n Here's how to use our app features:\n\n 1. Changing date format  ",
+  ),
+  OnBoard(
+    image1: "assets/img3.png",
+    image2: "assets/img4.png",
+    description: "2. How to add a new record",
+  ),
+  OnBoard(
+    image1: "assets/img5.png",
+    image2: "assets/img5.png",
+    description: "3. Record added successfully\n\n Get started and enjoy our app!",
+  ),
+];
 
 class OnBoardingScreen extends StatefulWidget {
   const OnBoardingScreen({Key? key}) : super(key: key);
@@ -79,6 +88,9 @@ class _OnBoardingScreenState extends State<OnBoardingScreen> {
   void nextPage() {
     if (currentPage < 2) {
       _controller.nextPage(duration: Duration(milliseconds: 300), curve: Curves.ease);
+      setState(() {
+        currentPage++;
+      });
     } else {
       // Navigate to the home page when the last page is reached
       Navigator.pushReplacement(
@@ -88,31 +100,56 @@ class _OnBoardingScreenState extends State<OnBoardingScreen> {
     }
   }
 
-  @override
+@override
   Widget build(BuildContext context) {
     return Scaffold(
       body: Stack(
         children: [
-          PageView(
+          PageView.builder(
             controller: _controller,
             onPageChanged: (int index) {
               setState(() {
                 currentPage = index;
               });
             },
-            children: [
-              Container(
-                color: Colors.purple,
-              ),
-              Container(
-                color: Colors.purple,
-              ),
-              Container(
-                color: Colors.purple,
-              ),
-            ],
+            itemCount: onBoardingData.length,
+            itemBuilder: (context, index) {
+              return Container(
+                color: Colors.purple, 
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Image.asset(
+                          onBoardingData[index].image1,
+                          height: 300,
+                          width: 300,
+                        ),
+                        const SizedBox(width: 20),
+                        Image.asset(
+                          onBoardingData[index].image2,
+                          height: 200,
+                          width: 200,
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 20),
+                    Text(
+                      onBoardingData[index].description,
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 18,
+                      ),
+                      textAlign: TextAlign.center,
+                    ),
+                  ],
+                ),
+              );
+            },
           ),
-          // Arrow button
+	        //next button
           Align(
             alignment: Alignment.bottomRight,
             child: Padding(
@@ -128,6 +165,7 @@ class _OnBoardingScreenState extends State<OnBoardingScreen> {
     );
   }
 }
+
 
 
 class MyAppState extends ChangeNotifier {
@@ -213,7 +251,7 @@ class _MyHomePageState extends State<MyHomePage> {
                 ]),
             ),
           ),
-          Expanded( // second child
+          Expanded( 
             child: Container(
               color: Theme.of(context).colorScheme.primaryContainer,
               child: page,
@@ -580,15 +618,3 @@ class AttendanceRecord {
 }
 }
 
-/*List<AttendanceRecord> attendanceRecords = [
-  AttendanceRecord('Chan Saw Lin', '0152131113', DateTime.parse('2020-06-30 16:10:05')),
-  AttendanceRecord('Lee Saw Loy', '0161231346', DateTime.parse('2020-07-11 15:39:59')),
-  AttendanceRecord('Khaw Tong Lin', '0158398109', DateTime.parse('2020-08-19 11:10:18')),
-  AttendanceRecord('Lim Kok Lin', '0168279101', DateTime.parse('2020-08-19 11:11:35')),
-  AttendanceRecord('Low Jun Wei', '0112731912', DateTime.parse('2020-08-15 13:00:05')),
-  AttendanceRecord('Yong Weng Kai', '0172332743', DateTime.parse('2020-07-31 18:10:11')),
-  AttendanceRecord('Jayden Lee', '0191236439', DateTime.parse('2020-08-22 08:10:38')),
-  AttendanceRecord('Kong Kah Yan', '0111931233', DateTime.parse('2020-07-11 12:00:00')),
-  AttendanceRecord('Jasmine Lau', '0162879190', DateTime.parse('2020-08-01 12:10:05')),
-  AttendanceRecord('Chan Saw Lin', '016783239', DateTime.parse('2020-08-23 11:59:05')),
-];*/
