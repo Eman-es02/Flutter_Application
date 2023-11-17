@@ -63,7 +63,7 @@ final List<OnBoard> onBoardingData = [
   ),
   OnBoard(
     image1: "assets/img5.png",
-    image2: "assets/img5.png",
+    image2: "assets/img6.png",
     description: "3. Record added successfully\n\n Get started and enjoy our app!",
   ),
 ];
