@@ -18,7 +18,7 @@ void main() {
   );
 }
 
-class MyApp extends StatelessWidget {
+/*class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
   @override
@@ -34,6 +34,27 @@ class MyApp extends StatelessWidget {
         home: MyHomePage(),
       ),
 
+    );
+  }
+}*/
+
+class MyApp extends StatelessWidget {
+  const MyApp({Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return MultiProvider(
+      providers: [
+        ChangeNotifierProvider(create: (_) => MyAppState()),
+      ],
+      child: MaterialApp(
+        title: 'Attendance',
+        theme: ThemeData(
+          useMaterial3: true,
+          colorScheme: ColorScheme.fromSeed(seedColor: Colors.purple),
+        ),
+        home: OnBoardingScreen(), // Start with the onboarding screen
+      ),
     );
   }
 }
