@@ -124,14 +124,14 @@ class _OnBoardingScreenState extends State<OnBoardingScreen> {
                       children: [
                         Image.asset(
                           onBoardingData[index].image1,
-                          height: 300,
-                          width: 300,
+                          height: 500,
+                          width: 500,
                         ),
                         const SizedBox(width: 20),
                         Image.asset(
                           onBoardingData[index].image2,
-                          height: 200,
-                          width: 200,
+                          height: 500,
+                          width: 500,
                         ),
                       ],
                     ),
