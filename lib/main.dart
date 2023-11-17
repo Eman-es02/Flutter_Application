@@ -156,7 +156,7 @@ class _OnBoardingScreenState extends State<OnBoardingScreen> {
               padding: const EdgeInsets.all(16.0),
               child: ElevatedButton(
                 onPressed: nextPage,
-                child: Text(currentPage < 2 ? 'Next' : 'Finish'),
+                child: Text(currentPage < 2 ? 'Next' : 'Start'),
               ),
             ),
           ),
