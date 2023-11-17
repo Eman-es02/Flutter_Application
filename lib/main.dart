@@ -38,6 +38,76 @@ class MyApp extends StatelessWidget {
   }
 }
 
+class OnBoardingScreen extends StatefulWidget {
+  const OnBoardingScreen({Key? key}) : super(key: key);
+
+  @override
+  _OnBoardingScreenState createState() => _OnBoardingScreenState();
+}
+
+class _OnBoardingScreenState extends State<OnBoardingScreen> {
+  PageController _controller = PageController();
+  int currentPage = 0;
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  void nextPage() {
+    if (currentPage < 2) {
+      _controller.nextPage(duration: Duration(milliseconds: 300), curve: Curves.ease);
+    } else {
+      // Navigate to the home page when the last page is reached
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (_) => MyHomePage()),
+      );
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: Stack(
+        children: [
+          PageView(
+            controller: _controller,
+            onPageChanged: (int index) {
+              setState(() {
+                currentPage = index;
+              });
+            },
+            children: [
+              Container(
+                color: Colors.purple,
+              ),
+              Container(
+                color: Colors.purple,
+              ),
+              Container(
+                color: Colors.purple,
+              ),
+            ],
+          ),
+          // Arrow button
+          Align(
+            alignment: Alignment.bottomRight,
+            child: Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: ElevatedButton(
+                onPressed: nextPage,
+                child: Text(currentPage < 2 ? 'Next' : 'Finish'),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
 
 class MyAppState extends ChangeNotifier {
 
