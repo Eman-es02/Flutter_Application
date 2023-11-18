@@ -40,6 +40,23 @@ class MyApp extends StatelessWidget {
   }
 }
 
+class MyAppState extends ChangeNotifier {
+
+  bool isDateFormatChanged = false;
+  String searchKeyword = '';
+
+  void toggleDateFormat() {
+    isDateFormatChanged = !isDateFormatChanged;
+    notifyListeners();
+  }
+
+   void setSearchKeyword(String keyword) {
+    searchKeyword = keyword;
+    notifyListeners();
+  }
+
+}
+
 class OnBoard {
   final String image1, image2, description;
 
@@ -164,25 +181,6 @@ class _OnBoardingScreenState extends State<OnBoardingScreen> {
       ),
     );
   }
-}
-
-
-
-class MyAppState extends ChangeNotifier {
-
-  bool isDateFormatChanged = false;
-  String searchKeyword = '';
-
-  void toggleDateFormat() {
-    isDateFormatChanged = !isDateFormatChanged;
-    notifyListeners();
-  }
-
-   void setSearchKeyword(String keyword) {
-    searchKeyword = keyword;
-    notifyListeners();
-  }
-
 }
 
 
